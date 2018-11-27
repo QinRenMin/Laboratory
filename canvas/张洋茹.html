@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+     <title>canvas炫彩小球</title>
+     <style type="text/css">
+         *{
+         	margin:0;
+         	padding:0;
+         }
+         body{
+         	background-color:black;
+         	overflow:hidden;
+         }
+     </style>
+</head>
+
+<body>
+
+
+
+	<canvas></canvas>
+	<!-- 必须使用javascript来控制canvas渲染各种东西 -->
+    <script type="text/javascript">
+    	//使用DOM方法来得到画布本身
+        //文档对象模型Document引用的querySelector()方法返回文档中与指定选择器或选择器组匹配的第一个 html元素。 如果找不到匹配项，则返回null
+    	var mycanvas = document.querySelector("canvas");
+    	//使用画布的上下文,.使用HTML5 Canvas 画图的时候 要通过调用getContext()方法返回一个方法用于在画布上绘图的环境,一般是var cxt= canvas.getContext("2d");然后 通过 cxt  进行绘制图形
+    	var ctx =mycanvas.getContext("2d");
+    	
+      // 用js设置画布满屏,canvas要撑开
+        mycanvas.width = document.documentElement.clientWidth;
+        mycanvas.height =document.documentElement.clientHeight;
+       //Document.documentElement 是一个会返回文档对象（document）的根元素的只读属性（如HTML文档的 html 元素）。
+       //Element.clientWidth 属性表示元素的内部宽度，以像素计。该属性包括内边距，但不包括垂直滚动条（如果有）、边框和外边距。该属性值会被四舍五入为一个整数
+
+
+
+
+       //构造函数，圆类
+       function Ball(x,y)
+       {
+       	this.x = x;
+       	this.y = y;
+       	this.r = 30;
+       	this.color ="rgba("+ parseInt(Math.random() * 256)+","+parseInt(Math.random() * 256)+","+ parseInt(Math.random()*256)+",0.8)";//颜色
+       	this.dx =parseInt( Math.random() *10 )-4;//乘的数越大，出现小球的速度就越快，-4~3，为什么是*8-4？？不懂，步长的增量为一个随机数
+       	this.dy =parseInt( Math.random() *10 )-4;//-4~3
+       	ballsArr.push(this);//让圆型实例进入数组
+       	}
+        //Math.random();结果为0到1之间的一个随机数，包括0，不包含1
+        //rgba颜色值的指定，rgba(红，绿，蓝，alpha),alpha参数是一个介于0.0（完全透明）和 1.0（完全不透明)之间的参数
+        //parseInt() 方法可以根据给定的进制数把一个字符串解析成整数
+        
+
+
+        //原型，update方法，更新，挪位置
+        Ball.prototype.update = function(){
+           this.x += this.dx;
+           this.y += this.dy;   
+           this.r --;//挪位置的时候，半径也在减小
+           //如果半径为0，此时从数组删除自己
+           if(this.r < 0){
+           	this.godie();
+           }
+       }
+        //给Ball构造函数添加原型方法，当你要声明一个构造函数，以便用此构造函数生成实例的时候（new Slider）,给这个构造函数添加方法，就用prototype 。把方法加入到slider的prototype里的话，当你new slider的时候，这个方法是继承的而不是复制的，会省资源。如果不写prototype，你每次new，新的实例里都要把这个方法的代码复制过来。
+
+        
+
+
+
+
+
+
+       ////画各种东西，用ctx打点调用方法，而不是mycanvas
+       //原型，，render方法渲染这个小球
+        Ball.prototype.render = function(){
+       	ctx.beginPath();
+       	ctx.arc(this.x,this.y,this.r,0,Math.PI *2,true);
+       	ctx.closePath();
+       	ctx.fillStyle = this.color;
+       	ctx.fill();
+       }
+       
+   
+
+
+
+        //原型，，，自杀，如果小球的半径减小到了0，就删除改小球
+        Ball.prototype.godie = function(){
+	      	for(var i = 0 ;i < ballsArr.length; i++)
+	      	{
+	      		if(ballsArr[i] === this){
+	      			ballsArr.splice(i,1);
+	      			//splice()方法通过删除现有元素和/或添加新元素来更改一个数组的内容。i:指定修改的开始位置（从0计数）1，表示要移除的数组元素的个数为1个
+	      		}//第i项删除1项
+	      	};
+        }
+
+
+  
+
+
+        //小球数组
+        var ballsArr = [];
+
+
+
+
+
+
+        //监听
+        mycanvas.onmousemove = function(event){
+        	new Ball(event.clientX,event.clientY)
+         }
+         //什么是event对象：获取事件的详细信息：鼠标位置、键盘按键。 可视区位置：clientX、clientY  onmousemove ：事件会在鼠标指针移到指定的对象时发生。event.clientX：事件属性返回当事件被触发时鼠标指针向对于浏览器页面（或客户区）的水平坐标）
+
+
+        
+
+
+
+
+        //定时器
+        //重复调用一个函数或执行一个代码段，在每次调用之间具有固定的时间延迟。
+        setInterval(function()
+        {
+	         //清屏，整个画布
+	         ctx.clearRect(0,0,mycanvas.width,mycanvas.height);
+	         //渲染更新所有小球
+	         for(var i = 0;i < ballsArr.length;i++)
+	         {
+	                  ballsArr[i].update();//先挪位置
+	                  //因为update可能会删除这个小球，（半径小于0），所以要验证一下，小球是否存在
+	                 ballsArr[i] && ballsArr[i].render();//再画圆
+	         };
+        },20);//20ms执行一次
+        //让所有演员（就是上画布的元素），都要进入数组，在定时器中，每一帧更新所有演员，渲染所有演员
+
+
+
+   </script>
+</body>
+</html>
+
+
+
+
+<!-- 小知识 -->
+<!-- canvas中能够产生颜色的是两个东西，一个叫做笔触（老百姓叫做描边），一个个叫做填充。 -->
+<!-- <canvas>元素有getContext()的方法，这个方法是用来获得渲染上下文和它的绘画功能，getContext()只有一个上下文的格式  -->
+<!-- 一个圆形画到了ctx上面，此时就是一堆的像素点，不是一个整体的对象。 -->
+<!-- 要想产生运动，必须要每帧重新画一个。不断地清屏，重绘-->
+<!-- 让元素在canvas上运动起来，需要使用setInterval() -->

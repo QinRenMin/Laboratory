@@ -1,0 +1,52 @@
+<html>
+<head>
+<style>	
+				.sc1{
+					user-select:none;
+					font-family : Comic Sans MS;
+					color:#ff0000;
+					border:5px;
+					border-top-color: 0xffffff;
+					font-size :120;
+				}
+				.sc2{
+					font-family : Comic Sans MS;
+					color:#00ffff;
+				}
+			</style>
+<script id="timeCount" src="time.js"></script>
+</head>
+<body onload="startTime()" onclick="bodyClick">
+<div id="nnd" style="width:206px;height:229px" >
+<h1 id="time" style="z-index:2;position:absolute;font-family:'Comic Sans Ms';color:#000000;left:700px;top:220px;"></h1>
+<canvas id="canvas1" style="z-index:1;position:absolute;left:0px;top:20px" width="1520" height="650"></canvas>
+<canvas id="canvas" style="z-index:-2" width="1520" height="650"></canvas>
+</div>
+<script type="text/javascript" id="bg" src="danmuBg.js"></script>
+<script src="ballBg.js"></canvas>
+<script>
+		var scale,scaleTimer,scaleTime
+		scaleTimer = setInterval(wipe,5000)
+		scaleTime = 0
+		scale = document.getElementById("sc03")
+		function wipe(){
+			if(scaleTime == 0){
+				scaleTime = 1
+				clearInterval(scaleTimer)
+				scaleTimer = setInterval(wipe,100)
+			}
+			if(scale.style.opacity <= 0){
+				clearInterval(scaleTimer)
+			}
+			else{
+				scale.style.opacity -= 0.05
+			}
+		}
+		function bodyClick(){
+			scale.style.opacity = 1
+			scaleTime = 0
+			scaleTimer = setInterval(wipe,5000)
+		}
+</script>
+</body>
+</html>
